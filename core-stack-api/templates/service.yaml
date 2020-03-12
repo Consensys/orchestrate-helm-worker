@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "core-stack-api.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
+    helm.sh/chart: {{ include "core-stack-api.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.exposed.port }}
+      targetPort: exposed-svc
+      protocol: TCP
+      name: exposed-svc
+    - port: {{ .Values.service.http.port }}
+      targetPort: http-svc
+      protocol: TCP
+      name: http-svc
+  selector:
+    app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

@@ -1,0 +1,59 @@
+# Default values for worker.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: nginx
+  tag: stable
+  pullPolicy: IfNotPresent
+
+cmd:
+  name: tx-crafter
+
+imageCredentials:
+  create: false
+  name: existing-secret
+  registry: registry.gitlab.com
+  username: someone
+  password: sillyness
+
+vaultAgent:
+  role: "client"
+  enabled: false
+  image:
+    repository: vault
+    tag: 1.1.1
+
+metrics:
+  enabled: true
+
+environment: {}
+environmentSecrets: {}
+aws:
+  enabled: false
+
+serviceAccount:
+  create: true
+  # name: "othername"
+
+testImage:
+  repository: registry.gitlab.com/consensys/client/fr/core-stack/tests/kafka-producer
+  tag: "v0.2.2"
+  cmd: e2e
+testImageCredentials:
+  create: false
+  name: existing-secret
+  registry: registry.gitlab.com
+  username: someone
+  password: goofyness
+testEnvironment: {}
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

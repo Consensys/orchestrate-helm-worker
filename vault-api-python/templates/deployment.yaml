@@ -1,0 +1,75 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "vault-api-python.fullname" . }}
+  labels:
+    app: {{ include "vault-api-python.name" . }}
+    chart: {{ include "vault-api-python.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "vault-api-python.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "vault-api-python.name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-app.yaml") . | sha256sum }}
+        iam.amazonaws.com/role: {{ .Values.kube2iam.role }}
+    spec:
+      {{ if .Values.imageCredentials }}
+      imagePullSecrets:
+        - name: {{ template "vault-api-python.imagePullSecretName" . }}
+      {{ end }}
+      containers:
+        - name: vault-api-python
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "vault-api-python.fullname" . }}-envmap
+          command:
+            - application
+          args:
+            - run
+            - --config
+            - /config/config.yaml
+          ports:
+            - name: http
+              containerPort: 5000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+          volumeMounts:
+            - name: config-app
+              mountPath: /config
+              readOnly: true
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+        - name: config-app
+          configMap:
+            name: {{ include "vault-api-python.fullname" . }}-app
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

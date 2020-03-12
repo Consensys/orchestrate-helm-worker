@@ -1,0 +1,7 @@
+apiVersion: v1
+description: Deploys the vault-api-python for dAuriel
+name: vault-api-python
+version: 0.1.4
+home: https://gitlab.com/ConsenSys/client/fr/dauriel/vault-api-python
+maintainers:
+  - name: nedim.haveric

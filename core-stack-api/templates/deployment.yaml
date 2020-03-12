@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "core-stack-api.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
+    helm.sh/chart: {{ include "core-stack-api.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-env.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/secret-env.yaml") . | sha256sum }}
+      {{- if .Values.metrics.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8082"
+      {{- end }}
+      {{- if .Values.aws.enabled }}
+        iam.amazonaws.com/role: "{{ .Values.aws.IamRoleArn }}"
+      {{- end }}
+    spec:
+      {{- if .Values.imageCredentials }}
+      imagePullSecrets:
+        - name: {{ include "core-stack-api.imagePullSecretName" . }}
+      {{- end }}
+      {{- if .Values.initContainers }}
+      initContainers:
+        - name: {{ .Chart.Name }}-init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /go/bin/main
+          args:
+            - {{ .Values.cmd.name }}
+            - migrate
+            - up
+          envFrom:
+            - configMapRef:
+                name: {{ include "core-stack-api.fullname" . }}-envmap
+            - secretRef:
+                name: {{ include "core-stack-api.fullname" . }}-secretmap
+                optional: true
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "core-stack-api.fullname" . }}-envmap
+            - secretRef:
+                name: {{ include "core-stack-api.fullname" . }}-secretmap
+                optional: true
+          command:
+            - /go/bin/main
+          args:
+            - {{ .Values.cmd.name }}
+            - run
+          ports:
+            - name: exposed-svc
+              containerPort: 8080
+              protocol: TCP
+            - name: http-svc
+              containerPort: 8081
+              protocol: TCP
+            - name: http-metrics
+              containerPort: 8082
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: http-metrics
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

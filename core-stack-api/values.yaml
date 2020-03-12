@@ -1,0 +1,66 @@
+# Default values for core-stack-api.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: nginx
+  tag: stable
+  pullPolicy: IfNotPresent
+
+cmd:
+  name: envelope-store
+
+imageCredentials:
+  create: false
+  name: existing-secret
+  registry: quay.io
+  username: someone
+  password: sillyness
+
+metrics:
+  enabled: true
+
+environment: {}
+environmentSecrets: {}
+aws:
+  enabled: false
+
+service:
+  type: ClusterIP
+  http:
+    port: 8081
+  exposed:
+    port: 80
+
+initDBHook: false
+initContainers: false
+
+ingress:
+  enabled: false
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+#  limits:
+#  cpu: 300m
+#  memory: 128Mi
+# requests:
+#  cpu: 100m
+#  memory: 32Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

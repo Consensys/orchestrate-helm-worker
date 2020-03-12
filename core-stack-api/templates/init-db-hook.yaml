@@ -1,0 +1,108 @@
+{{- if .Values.initDBHook }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "core-stack-api.fullname" . }}-hook-envmap
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+  labels:
+    app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
+    helm.sh/chart: {{ include "core-stack-api.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+{{- range $key,$value := .Values.environment }}
+  {{ $key }}: {{ $value | quote }}
+{{- end }}
+
+{{- if .Values.environmentSecrets }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "core-stack-api.fullname" . }}-hook-secretmap
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+  labels:
+    app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
+    helm.sh/chart: {{ include "core-stack-api.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+type: Opaque
+data:
+{{- range $key,$value := .Values.environmentSecrets }}
+  {{ $key }}: {{ $value | b64enc | quote }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.imageCredentials.create }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "core-stack-api.imagePullSecretName" . }}-hook-registry
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+  labels:
+    app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
+    helm.sh/chart: {{ include "core-stack-api.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: {{ template "core-stack-api.imagePullSecret" . }}
+{{- end }}
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "core-stack-api.fullname" . }}-initdb-job
+  labels:
+    app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
+    helm.sh/chart: {{ include "core-stack-api.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ template "core-stack-api.fullname" . }}-initdb-pod
+      labels:
+        app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
+        helm.sh/chart: {{ include "core-stack-api.chart" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      restartPolicy: Never
+      {{- if .Values.imageCredentials }}
+      imagePullSecrets:
+        - name: {{ include "core-stack-api.imagePullSecretName" . }}-hook-registry
+      {{- end }}
+      containers:
+        - name: {{ template "core-stack-api.fullname" . }}-initdb
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /go/bin/main
+          args:
+            - {{ .Values.cmd.name }}
+            - migrate
+            - init
+          envFrom:
+            - configMapRef:
+                name: {{ include "core-stack-api.fullname" . }}-hook-envmap
+            - secretRef:
+                name: {{ include "core-stack-api.fullname" . }}-hook-secretmap
+                optional: true
+{{- end }}

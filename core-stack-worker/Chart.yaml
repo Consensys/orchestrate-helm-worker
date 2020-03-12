@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+description: A Helm chart for core stack workers
+name: core-stack-worker
+version: 0.4.6
+home: https://gitlab.com/ConsenSys/client/fr/core-stack
+maintainers:
+  - name: nedim.haveric
+  - name: arnaud.gouriou

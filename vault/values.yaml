@@ -1,0 +1,43 @@
+---
+replicaCount: 1
+image:
+  repository: vault
+  tag: 1.1.1
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+environment: {}
+environmentSecrets: {}
+
+aws: {}
+
+vault:
+  init:
+    enabled: false
+    # awsSecretID: ""
+    # image:
+    #   repository: ""
+    #   tag: ""
+    #   pullPolicy: Always
+  provision:
+    enabled: false
+  config:
+    log_level: info
+    listener:
+      tcp:
+        address: 0.0.0.0:8200
+        cluster_address: 0.0.0.0:8201
+        tls_disable: false
+        tls_cert_file: "/etc/tls/tls.crt"
+        tls_key_file: "/etc/tls/tls.key"
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

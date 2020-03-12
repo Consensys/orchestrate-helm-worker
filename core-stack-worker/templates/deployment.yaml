@@ -1,0 +1,116 @@
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "core-stack-worker.fullname" . }}
+  labels:
+    testImage: {{ default "null" .Values.testImage.cmd }}
+    app.kubernetes.io/name: {{ include "core-stack-worker.name" . }}
+    helm.sh/chart: {{ include "core-stack-worker.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "core-stack-worker.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "core-stack-worker.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/secret-env.yaml") . | sha256sum }}
+        checksum/testworker: {{ include (print $.Template.BasePath "/test/test-worker.yaml") . | sha256sum }}
+      {{- if .Values.metrics.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8082"
+      {{- end }}
+      {{- if .Values.aws.enabled }}
+        iam.amazonaws.com/role: "{{ .Values.aws.IamRoleArn }}"
+      {{- end }}
+    spec:
+      {{- if .Values.imageCredentials }}
+      imagePullSecrets:
+        - name: {{ include "core-stack-worker.imagePullSecretName" . }}
+      {{- end }}
+      serviceAccountName: {{ include "core-stack-worker.serviceAccountName" . }}
+      {{- if .Values.vaultAgent.enabled }}
+      initContainers:
+        - name: vault-token
+          image: "{{ .Values.vaultAgent.image.repository }}:{{ .Values.vaultAgent.image.tag }}"
+          args:
+            - "agent"
+            - "-config"
+            - "/vault/config/agent-config.hcl"
+          envFrom:
+            - configMapRef:
+                name: {{ include "core-stack-worker.fullname" . }}-envmap
+          volumeMounts:
+            - name: vault-token
+              mountPath: /vault/token
+            - name: vault-config
+              mountPath: /vault/config
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /go/bin/main
+          args:
+            - {{ .Values.cmd.name }}
+            - run
+          envFrom:
+            - configMapRef:
+                name: {{ include "core-stack-worker.fullname" . }}-envmap
+            - secretRef:
+                name: {{ include "core-stack-worker.fullname" . }}-secretmap
+                optional: true
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8082
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8082
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          resources:
+          {{ toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.vaultAgent.enabled }}
+          volumeMounts:
+            - name: vault-token
+              mountPath: /vault/token
+      {{- end }}            
+      {{- if .Values.vaultAgent.enabled }}
+      volumes:
+        - name: vault-token
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1M
+        - name: vault-config
+          configMap:
+            name: {{ include "core-stack-worker.fullname" . }}-vault-agent
+      {{ end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}

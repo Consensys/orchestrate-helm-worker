@@ -1,0 +1,29 @@
+{{- if .Values.vaultAgent.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "core-stack-worker.fullname" . }}-vault-agent
+  labels:
+    app.kubernetes.io/name: {{ include "core-stack-worker.name" . }}
+    helm.sh/chart: {{ include "core-stack-worker.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  agent-config.hcl: |
+    exit_after_auth = true
+    auto_auth {
+      method "kubernetes" {
+       mount_path = "auth/kubernetes"
+       config = {
+        role = "{{ .Values.vaultAgent.role }}"
+       }
+      }
+      sink "file" {
+        config = {
+          path = "/vault/token/.vault-token"
+        }
+      }
+    }
+
+{{- end }}

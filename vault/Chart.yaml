@@ -1,0 +1,7 @@
+apiVersion: v1
+description: Custom HashiCorp Vault chart with AWS / Kubernetes integration
+name: vault
+version: 0.1.1
+home: "https://www.hashicorp.com/products/vault/"
+maintainers:
+  - name: nedim.haveric

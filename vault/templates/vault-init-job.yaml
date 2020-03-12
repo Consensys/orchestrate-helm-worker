@@ -1,0 +1,62 @@
+{{- if .Values.vault.init.enabled }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "vault.fullname" . }}-init
+  labels:
+    app.kubernetes.io/name: {{ include "vault.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "vault.chart" . }}
+  annotations:
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook: "post-install"
+    helm.sh/hook-delete-policy: "hook-succeeded"
+spec:
+  backoffLimit: 3
+  completions: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "vault.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        {{- if .Values.aws.kube2iamRole }}
+        iam.amazonaws.com/role: {{ .Values.aws.kube2iamRole }}
+        {{- end }}
+    spec:
+      restartPolicy: "Never"
+      serviceAccountName: "vault-server"
+      containers:
+        - name: vault-init
+          image: "{{ .Values.vault.init.image.repository }}:{{ .Values.vault.init.image.tag }}"
+          imagePullPolicy: {{ .Values.vault.init.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args: ["/init/vault-init.sh"]
+          env:
+            - name: VAULT_ADDR
+              value: "https://{{ include "vault.fullname" . }}"
+            - name: VAULT_CACERT
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            - name: AWS_SECRET_ID
+              value: "{{ .Values.vault.init.awsSecretID }}"
+            - name: AWS_DEFAULT_REGION
+              value: "{{ .Values.vault.init.awsRegion }}"
+          volumeMounts:
+            # TODO: don't write secrets anywhere, pipe to secretsmanager if possbru
+            - name: secret
+              mountPath: /secret
+            - name: init
+              mountPath: /init/vault-init.sh
+              subPath: vault-init.sh
+      volumes:
+        - name: init
+          configMap:
+            name: "{{ include "vault.fullname" . }}-init-script"
+            defaultMode: 0777
+        - name: secret
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Mi
+{{- end }}
