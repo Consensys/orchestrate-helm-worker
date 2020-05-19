@@ -21,13 +21,14 @@ tar -czf core-stack-worker.tgz core-stack-worker
 brew install jfrog-cli-go
 ```
 
-_From chart repository_
+_From `orchestrate-helm` repository_
 ```bash
 tar -czf core-stack-api.tgz core-stack-api
-jfrog rt u core-stack-api.tgz helm-orchestrate --url https://pegasys.jfrog.io/artifactory/ --user arnaud.gouriou --password RiDD@ckPeg
+jfrog rt u core-stack-api.tgz helm-orchestrate --url https://pegasys.jfrog.io/artifactory/ --user <USER_ACCOUNT> --password <PASSWORD_ACCOUNT>
 ```
 
 INFO:
 
-jfrog rt ping --url https://pegasys.jfrog.io/artifactory/                                                                                                                                             463ms  Thu Mar 12 14:34:54 2020
-To avoid this message in the future, set the JFROG_CLI_OFFER_CONFIG environment variable to false.
+`jfrog rt ping --url https://pegasys.jfrog.io/artifactory/`    
+                                                           
+To avoid this message in the future, set the `JFROG_CLI_OFFER_CONFIG` environment variable to `false`.
