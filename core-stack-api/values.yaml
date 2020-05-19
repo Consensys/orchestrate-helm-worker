@@ -29,10 +29,10 @@ aws:
 
 service:
   type: ClusterIP
+  grpc:
+    port: 8080
   http:
     port: 8081
-  exposed:
-    port: 80
 
 initDBHook: false
 initContainers: false
@@ -44,7 +44,14 @@ ingress:
   # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
-      paths: []
+      http:
+        paths:
+          - path: /grpc
+            backend:
+              servicePort: grpc-svc
+          - path: /
+            backend:
+              servicePort: http-svc
 
   tls: []
   #  - secretName: chart-example-tls

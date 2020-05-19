@@ -2,7 +2,7 @@
 apiVersion: v1
 description: A Helm chart for core-stack api server
 name: core-stack-api
-version: 0.4.4
+version: 0.5.0
 home: https://gitlab.com/ConsenSys/client/fr/core-stack
 maintainers:
   - name: nedim.haveric
