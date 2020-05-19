@@ -1,4 +1,8 @@
 # HELM Chart used to deploy Orchestrate
+## Requirements
+First of all, you need to upgrade the version number of the Helm Chart before changed and upload it.
+
+You have to change the version number in `Chart.yaml` file in each Helm Chart repository. 
 
 ## Install plugin helm to deploy into jFrog Container Repository
 use helm plugin [helm-push-artifactory-plugin](https://github.com/belitre/helm-push-artifactory-plugin)
