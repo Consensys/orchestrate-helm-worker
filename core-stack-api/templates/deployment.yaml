@@ -67,7 +67,7 @@ spec:
             - {{ .Values.cmd.name }}
             - run
           ports:
-            - name: exposed-svc
+            - name: grpc-svc
               containerPort: 8080
               protocol: TCP
             - name: http-svc

@@ -10,10 +10,10 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.exposed.port }}
-      targetPort: exposed-svc
+    - port: {{ .Values.service.grpc.port }}
+      targetPort: grpc-svc
       protocol: TCP
-      name: exposed-svc
+      name: grpc-svc
     - port: {{ .Values.service.http.port }}
       targetPort: http-svc
       protocol: TCP
