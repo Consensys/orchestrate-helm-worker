@@ -9,6 +9,7 @@ metadata:
     helm.sh/chart: {{ include "core-stack-worker.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.metrics: {{ .Values.product }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -21,6 +22,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "core-stack-worker.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+        app.metrics: {{ .Values.product }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secrets: {{ include (print $.Template.BasePath "/secret-env.yaml") . | sha256sum }}
