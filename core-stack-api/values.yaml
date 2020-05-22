@@ -4,6 +4,8 @@
 
 replicaCount: 1
 
+product: orchestrate
+
 image:
   repository: nginx
   tag: stable
@@ -19,9 +21,6 @@ imageCredentials:
   username: someone
   password: sillyness
 
-metrics:
-  enabled: true
-
 environment: {}
 environmentSecrets: {}
 aws:
@@ -33,6 +32,8 @@ service:
     port: 8080
   http:
     port: 8081
+  metrics:
+    port: 8082
 
 initDBHook: false
 initContainers: false

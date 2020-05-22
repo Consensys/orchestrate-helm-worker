@@ -4,6 +4,8 @@
 
 replicaCount: 1
 
+product: orchestrate
+
 image:
   repository: nginx
   tag: stable
@@ -26,8 +28,10 @@ vaultAgent:
     repository: vault
     tag: 1.1.1
 
-metrics:
-  enabled: true
+service:
+  type: ClusterIP
+  metrics:
+    port: 8082
 
 environment: {}
 environmentSecrets: {}
