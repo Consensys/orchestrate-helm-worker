@@ -18,6 +18,11 @@ spec:
       targetPort: http-svc
       protocol: TCP
       name: http-svc
+    - port: {{ .Values.service.metrics.port }}
+      targetPort: http-metrics
+      protocol: TCP
+      name: http-metrics
   selector:
     app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
+    app.metrics: {{ .Values.product }}

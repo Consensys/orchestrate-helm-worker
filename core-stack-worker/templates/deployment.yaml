@@ -1,5 +1,5 @@
 ---
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "core-stack-worker.fullname" . }}
@@ -15,6 +15,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: {{ include "core-stack-worker.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
+      app.metrics: {{ .Values.product }}
   template:
     metadata:
       labels:
@@ -24,10 +25,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secrets: {{ include (print $.Template.BasePath "/secret-env.yaml") . | sha256sum }}
         checksum/testworker: {{ include (print $.Template.BasePath "/test/test-worker.yaml") . | sha256sum }}
-      {{- if .Values.metrics.enabled }}
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8082"
-      {{- end }}
       {{- if .Values.aws.enabled }}
         iam.amazonaws.com/role: "{{ .Values.aws.IamRoleArn }}"
       {{- end }}
@@ -73,16 +70,19 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+            - name: http-metrics
+              containerPort: 8082
+              protocol: TCP
           readinessProbe:
             httpGet:
               path: /ready
-              port: 8082
+              port: http-metrics
             initialDelaySeconds: 3
             periodSeconds: 3
           livenessProbe:
             httpGet:
               path: /live
-              port: 8082
+              port: http-metrics
             initialDelaySeconds: 3
             periodSeconds: 3
           resources:
