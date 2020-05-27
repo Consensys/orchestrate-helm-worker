@@ -1,38 +1,36 @@
 # HELM Chart used to deploy Orchestrate
-## Requirements
-First of all, you need to upgrade the version number of the Helm Chart before changed and upload it.
 
-You have to change the version number in `Chart.yaml` file in each Helm Chart repository. 
+## Prerequisites
 
-## Install plugin helm to deploy into jFrog Container Repository
-use helm plugin [helm-push-artifactory-plugin](https://github.com/belitre/helm-push-artifactory-plugin)
+### Helm
+[Install helm](https://helm.sh/docs/intro/install/) locally
+
+
+### Helm push-artifactory plugin
+Install helm plugin [helm-push-artifactory-plugin](https://github.com/belitre/helm-push-artifactory-plugin)
 
 ```bash
-helm plugin install https://github.com/belitre/helm-push-artifactory-plugin --version v0.3.0
+helm plugin install https://github.com/belitre/helm-push-artifactory-plugin --version v1.0.1
 ```
 _IMPORTANT_: need to have an `index.yaml` into the helm repo before adding repo to plugin
 
-
+### Add the helm-orchestrate repository
 ```bash
 helm repo add --username <USER_ACCOUNT> --password <PASSWORD_ACCOUNT> helm-orchestrate https://pegasys.jfrog.io/artifactory/helm-orchestrate/
-tar -czf core-stack-worker.tgz core-stack-worker
 ```
 
+## Release a new version
 
-## Upload helm chart from CLI jFrog
+First of all, don't forget to upgrade the version number of the Helm Chart before proceeding by changing the version number in `Chart.yaml` file in each Helm Chart folder impacted. 
 
+Then, to push the new chart release to the repository, run:
 ```bash
-brew install jfrog-cli-go
+make push-api
+
+make push-worker
 ```
 
-_From `orchestrate-helm` repository_
+or both at the same time using
 ```bash
-tar -czf core-stack-api.tgz core-stack-api
-jfrog rt u core-stack-api.tgz helm-orchestrate --url https://pegasys.jfrog.io/artifactory/ --user <USER_ACCOUNT> --password <PASSWORD_ACCOUNT>
+make push
 ```
-
-INFO:
-
-`jfrog rt ping --url https://pegasys.jfrog.io/artifactory/`    
-                                                           
-To avoid this message in the future, set the `JFROG_CLI_OFFER_CONFIG` environment variable to `false`.
