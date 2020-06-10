@@ -2,11 +2,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "core-stack-worker.fullname" . }}
+  name: {{ include "orchestrate-worker.fullname" . }}
   labels:
     testImage: {{ default "null" .Values.testImage.cmd }}
-    app.kubernetes.io/name: {{ include "core-stack-worker.name" . }}
-    helm.sh/chart: {{ include "core-stack-worker.chart" . }}
+    app.kubernetes.io/name: {{ include "orchestrate-worker.name" . }}
+    helm.sh/chart: {{ include "orchestrate-worker.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.metrics: {{ .Values.product }}
@@ -14,13 +14,13 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "core-stack-worker.name" . }}
+      app.kubernetes.io/name: {{ include "orchestrate-worker.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.metrics: {{ .Values.product }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "core-stack-worker.name" . }}
+        app.kubernetes.io/name: {{ include "orchestrate-worker.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.metrics: {{ .Values.product }}
       annotations:
@@ -33,9 +33,9 @@ spec:
     spec:
       {{- if .Values.imageCredentials }}
       imagePullSecrets:
-        - name: {{ include "core-stack-worker.imagePullSecretName" . }}
+        - name: {{ include "orchestrate-worker.imagePullSecretName" . }}
       {{- end }}
-      serviceAccountName: {{ include "core-stack-worker.serviceAccountName" . }}
+      serviceAccountName: {{ include "orchestrate-worker.serviceAccountName" . }}
       {{- if .Values.vaultAgent.enabled }}
       initContainers:
         - name: vault-token
@@ -46,7 +46,7 @@ spec:
             - "/vault/config/agent-config.hcl"
           envFrom:
             - configMapRef:
-                name: {{ include "core-stack-worker.fullname" . }}-envmap
+                name: {{ include "orchestrate-worker.fullname" . }}-envmap
           volumeMounts:
             - name: vault-token
               mountPath: /vault/token
@@ -64,9 +64,9 @@ spec:
             - run
           envFrom:
             - configMapRef:
-                name: {{ include "core-stack-worker.fullname" . }}-envmap
+                name: {{ include "orchestrate-worker.fullname" . }}-envmap
             - secretRef:
-                name: {{ include "core-stack-worker.fullname" . }}-secretmap
+                name: {{ include "orchestrate-worker.fullname" . }}-secretmap
                 optional: true
           ports:
             - name: http
@@ -102,7 +102,7 @@ spec:
             sizeLimit: 1M
         - name: vault-config
           configMap:
-            name: {{ include "core-stack-worker.fullname" . }}-vault-agent
+            name: {{ include "orchestrate-worker.fullname" . }}-vault-agent
       {{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

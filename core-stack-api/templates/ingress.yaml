@@ -1,12 +1,12 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "core-stack-api.fullname" . -}}
+{{- $fullName := include "orchestrate-api.fullname" . -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    app.kubernetes.io/name: {{ include "core-stack-api.name" . }}
-    helm.sh/chart: {{ include "core-stack-api.chart" . }}
+    app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
+    helm.sh/chart: {{ include "orchestrate-api.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
   {{- with .Values.ingress.annotations }}

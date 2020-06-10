@@ -3,5 +3,6 @@ description: Custom HashiCorp Vault chart with AWS / Kubernetes integration
 name: vault
 version: 0.1.1
 home: "https://www.hashicorp.com/products/vault/"
+icon: https://docs.orchestrate.pegasys.tech/en/stable/logo.svg
 maintainers:
   - name: nedim.haveric

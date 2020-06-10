@@ -2,16 +2,16 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ template "core-stack-worker.fullname" . }}-test
+  name: {{ template "orchestrate-worker.fullname" . }}-test
   annotations:
     "helm.sh/hook": "test-success"
 spec:
   {{ if .Values.imageCredentials }}
   imagePullSecrets:
-    - name: {{ template "core-stack-worker.imagePullSecretNameTest" . }}
+    - name: {{ template "orchestrate-worker.imagePullSecretNameTest" . }}
   {{ end }}
   containers:
-  - name: "{{ template "core-stack-worker.fullname" . }}-test"
+  - name: "{{ template "orchestrate-worker.fullname" . }}-test"
     image: "{{ .Values.testImage.repository }}:{{ .Values.testImage.tag }}"
     command:
       - /go/bin/main
@@ -20,7 +20,7 @@ spec:
       - run
     envFrom:
       - configMapRef:
-          name: {{ include "core-stack-worker.fullname" . }}-envmap
+          name: {{ include "orchestrate-worker.fullname" . }}-envmap
     env:
       # Add env variables only for helm test
       {{- range $key, $value := .Values.testEnvironment }}
