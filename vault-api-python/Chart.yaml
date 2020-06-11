@@ -1,8 +1,0 @@
-apiVersion: v1
-description: Deploys the vault-api-python for Orchestrate
-name: vault-api-python
-version: 0.1.4
-home: https://pegasys.tech/orchestrate/
-icon: https://docs.orchestrate.pegasys.tech/en/stable/logo.svg
-maintainers:
-  - name: nedim.haveric

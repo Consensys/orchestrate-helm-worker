@@ -11,8 +11,6 @@ The Helm Charts are pushed to the following public repository: https://pegasys.j
 The available Charts are listed below:
 * core-stack-worker
 * core-stack-api
-* vault (DEPRECATED - the recommended way is to use the [BankVault](https://github.com/banzaicloud/bank-vaults) project)
-* vault-api-python (DEPRECATED - the recommended way is to use the [BankVault](https://github.com/banzaicloud/bank-vaults) project)
 
 For an example on how to use these charts, please see the [orchestrate-kubernetes](https://github.com/PegaSysEng/orchestrate-kubernetes) project.
 
