@@ -1,3 +1,8 @@
+[![Website](https://img.shields.io/website?label=documentation&url=https%3A%2F%2Fdocs.orchestrate.pegasys.tech%2F)](https://docs.orchestrate.pegasys.tech/)
+[![Website](https://img.shields.io/website?label=website&url=https%3A%2F%2Fpegasys.tech%2Forchestrate%2F)](https://pegasys.tech/orchestrate/)
+
+[![Website](https://img.shields.io/website?label=charts%20repository&url=https%3A%2F%2Fpegasys.jfrog.io%2Fartifactory%2Fhelm-pegasys)](https://pegasys.jfrog.io/artifactory/helm-pegasys)
+
 # Helm Charts
 
 This GitHub project is the source for Orchestrate Helm chart repositories.
