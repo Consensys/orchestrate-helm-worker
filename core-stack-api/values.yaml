@@ -35,8 +35,9 @@ service:
   metrics:
     port: 8082
 
-initDBHook: false
-initContainers: false
+initDBHook: true
+initDBHookBackoffLimit: 6
+initContainers: true
 
 ingress:
   enabled: false
