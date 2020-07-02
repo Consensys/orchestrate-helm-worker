@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.5.4 (2020-07-02)
+### 🆕 Bug fixes
+* Fix invalid annotation level of `backoffLimit` within initDBHook Job template 
+
 ## v0.5.3 (2020-06-25)
 ### 🆕 Features
 * Allow users to define a custom `backoffLimit` for initDBHook Job. (Default value set to 6)
