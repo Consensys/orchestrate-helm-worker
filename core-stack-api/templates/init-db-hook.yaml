@@ -75,6 +75,7 @@ metadata:
     "helm.sh/hook-weight": "10"
     "helm.sh/hook-delete-policy": hook-succeeded
 spec:
+  backoffLimit: {{ .Values.initDBHookBackoffLimit }}
   template:
     metadata:
       name: {{ template "orchestrate-api.fullname" . }}-initdb-pod
@@ -85,7 +86,6 @@ spec:
         app.kubernetes.io/managed-by: {{ .Release.Service }}
     spec:
       restartPolicy: Never
-      backoffLimit: {{ .Values.initDBHookBackoffLimit }}
       {{- if .Values.imageCredentials }}
       imagePullSecrets:
         - name: {{ include "orchestrate-api.imagePullSecretName" . }}-hook-registry
