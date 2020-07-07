@@ -4,38 +4,41 @@ kind: Deployment
 metadata:
   name: {{ include "orchestrate-api.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-    helm.sh/chart: {{ include "orchestrate-api.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "orchestrate-api.labels" . | nindent 4 }}
     app.metrics: {{ .Values.product }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "orchestrate-api.selectorLabels" . | nindent 6 }}
       app.metrics: {{ .Values.product }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- include "orchestrate-api.selectorLabels" . | nindent 8 }}
         app.metrics: {{ .Values.product }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap-env.yaml") . | sha256sum }}
         checksum/secrets: {{ include (print $.Template.BasePath "/secret-env.yaml") . | sha256sum }}
-      {{- if .Values.aws.enabled }}
-        iam.amazonaws.com/role: "{{ .Values.aws.IamRoleArn }}"
-      {{- end }}
+        {{- if .Values.aws.enabled }}
+          iam.amazonaws.com/role: "{{ .Values.aws.IamRoleArn }}"
+        {{- end }}
+        {{- if .Values.podAnnotations}}
+          {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- end}}
     spec:
       {{- if .Values.imageCredentials }}
       imagePullSecrets:
         - name: {{ include "orchestrate-api.imagePullSecretName" . }}
       {{- end }}
+      serviceAccountName: {{ include "orchestrate-api.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- if .Values.initContainers }}
       initContainers:
         - name: {{ .Chart.Name }}-init
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
@@ -53,6 +56,8 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:

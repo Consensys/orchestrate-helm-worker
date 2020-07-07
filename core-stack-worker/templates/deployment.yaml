@@ -5,40 +5,42 @@ metadata:
   name: {{ include "orchestrate-worker.fullname" . }}
   labels:
     testImage: {{ default "null" .Values.testImage.cmd }}
-    app.kubernetes.io/name: {{ include "orchestrate-worker.name" . }}
-    helm.sh/chart: {{ include "orchestrate-worker.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "orchestrate-worker.labels" . | nindent 4 }}
     app.metrics: {{ .Values.product }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "orchestrate-worker.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "orchestrate-worker.selectorLabels" . | nindent 6 }}
       app.metrics: {{ .Values.product }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "orchestrate-worker.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- include "orchestrate-worker.selectorLabels" . | nindent 8 }}
         app.metrics: {{ .Values.product }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secrets: {{ include (print $.Template.BasePath "/secret-env.yaml") . | sha256sum }}
         checksum/testworker: {{ include (print $.Template.BasePath "/test/test-worker.yaml") . | sha256sum }}
-      {{- if .Values.aws.enabled }}
-        iam.amazonaws.com/role: "{{ .Values.aws.IamRoleArn }}"
-      {{- end }}
+        {{- if .Values.aws.enabled }}
+          iam.amazonaws.com/role: "{{ .Values.aws.IamRoleArn }}"
+        {{- end }}
+        {{- if .Values.podAnnotations}}
+          {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- end}}
     spec:
       {{- if .Values.imageCredentials }}
       imagePullSecrets:
         - name: {{ include "orchestrate-worker.imagePullSecretName" . }}
       {{- end }}
       serviceAccountName: {{ include "orchestrate-worker.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- if .Values.vaultAgent.enabled }}
       initContainers:
         - name: vault-token
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.vaultAgent.image.repository }}:{{ .Values.vaultAgent.image.tag }}"
           args:
             - "agent"
@@ -55,6 +57,8 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:

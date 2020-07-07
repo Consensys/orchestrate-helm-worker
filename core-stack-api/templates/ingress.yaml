@@ -5,10 +5,7 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-    helm.sh/chart: {{ include "orchestrate-api.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "orchestrate-api.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2

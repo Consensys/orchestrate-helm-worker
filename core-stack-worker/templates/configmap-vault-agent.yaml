@@ -5,10 +5,7 @@ kind: ConfigMap
 metadata:
   name: {{ include "orchestrate-worker.fullname" . }}-vault-agent
   labels:
-    app.kubernetes.io/name: {{ include "orchestrate-worker.name" . }}
-    helm.sh/chart: {{ include "orchestrate-worker.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "orchestrate-worker.labels" . | nindent 4 }}
 data:
   agent-config.hcl: |
     exit_after_auth = true

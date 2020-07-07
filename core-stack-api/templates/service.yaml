@@ -3,10 +3,7 @@ kind: Service
 metadata:
   name: {{ include "orchestrate-api.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-    helm.sh/chart: {{ include "orchestrate-api.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "orchestrate-api.labels" . | nindent 4 }}
     app.metrics: {{ .Values.product }}
 spec:
   type: {{ .Values.service.type }}
@@ -24,6 +21,5 @@ spec:
       protocol: TCP
       name: http-metrics
   selector:
-    app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "orchestrate-api.selectorLabels" . | nindent 4 }}
     app.metrics: {{ .Values.product }}
