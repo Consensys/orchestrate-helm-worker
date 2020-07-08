@@ -4,10 +4,7 @@ kind: ConfigMap
 metadata:
   name: {{ include "orchestrate-api.fullname" . }}-envmap
   labels:
-    app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-    helm.sh/chart: {{ include "orchestrate-api.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "orchestrate-api.labels" . | nindent 4 }}
 data:
 {{- range $key,$value := .Values.environment }}
   {{ $key }}: {{ $value | quote }}

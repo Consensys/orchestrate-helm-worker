@@ -7,8 +7,8 @@ replicaCount: 1
 product: orchestrate
 
 image:
-  repository: nginx
-  tag: stable
+  repository: consensys-docker-pegasys-orchestrate.bintray.io/orchestrate
+  tag: v2.1.1
   pullPolicy: IfNotPresent
 
 cmd:
@@ -17,14 +17,36 @@ cmd:
 imageCredentials:
   create: false
   name: existing-secret
-  registry: quay.io
+  registry: consensys-docker-pegasys-orchestrate.bintray.io
   username: someone
   password: sillyness
 
 environment: {}
 environmentSecrets: {}
-aws:
+aws: # DEPRECATED: use podAnnotations
   enabled: false
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
 
 service:
   type: ClusterIP

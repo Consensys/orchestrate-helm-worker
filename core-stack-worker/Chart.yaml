@@ -2,7 +2,7 @@
 apiVersion: v1
 description: A Helm chart for Orchestrate workers
 name: core-stack-worker
-version: 0.5.2
+version: 0.5.3
 home: https://pegasys.tech/orchestrate/
 icon: https://docs.orchestrate.pegasys.tech/en/stable/logo.svg
 maintainers:

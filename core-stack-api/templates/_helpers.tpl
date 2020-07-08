@@ -45,3 +45,34 @@ Define imageCredentials name.
 {{- define "orchestrate-api.imagePullSecret" }}
 {{- printf "{\"auths\": {\"%s\": {\"auth\": \"%s\"}}}" .Values.imageCredentials.registry (printf "%s:%s" .Values.imageCredentials.username .Values.imageCredentials.password | b64enc) | b64enc }}
 {{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "orchestrate-api.labels" -}}
+helm.sh/chart: {{ include "orchestrate-api.chart" . }}
+{{ include "orchestrate-api.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "orchestrate-api.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Define serviceAccountName name
+*/}}
+{{- define "orchestrate-api.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "orchestrate-api.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}

@@ -9,10 +9,7 @@ metadata:
     "helm.sh/hook-weight": "5"
     "helm.sh/hook-delete-policy": hook-succeeded
   labels:
-    app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-    helm.sh/chart: {{ include "orchestrate-api.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "orchestrate-api.labels" . | nindent 4 }}
 data:
 {{- range $key,$value := .Values.environment }}
   {{ $key }}: {{ $value | quote }}
@@ -29,10 +26,7 @@ metadata:
     "helm.sh/hook-weight": "5"
     "helm.sh/hook-delete-policy": hook-succeeded
   labels:
-    app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-    helm.sh/chart: {{ include "orchestrate-api.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "orchestrate-api.labels" . | nindent 4 }}
 type: Opaque
 data:
 {{- range $key,$value := .Values.environmentSecrets }}
@@ -51,10 +45,7 @@ metadata:
     "helm.sh/hook-weight": "5"
     "helm.sh/hook-delete-policy": hook-succeeded
   labels:
-    app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-    helm.sh/chart: {{ include "orchestrate-api.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "orchestrate-api.labels" . | nindent 4 }}
 type: kubernetes.io/dockerconfigjson
 data:
   .dockerconfigjson: {{ template "orchestrate-api.imagePullSecret" . }}
@@ -66,10 +57,7 @@ kind: Job
 metadata:
   name: {{ template "orchestrate-api.fullname" . }}-initdb-job
   labels:
-    app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-    helm.sh/chart: {{ include "orchestrate-api.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "orchestrate-api.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "10"
@@ -80,10 +68,7 @@ spec:
     metadata:
       name: {{ template "orchestrate-api.fullname" . }}-initdb-pod
       labels:
-        app.kubernetes.io/name: {{ include "orchestrate-api.name" . }}
-        helm.sh/chart: {{ include "orchestrate-api.chart" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
-        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        {{- include "orchestrate-api.labels" . | nindent 6 }}
     spec:
       restartPolicy: Never
       {{- if .Values.imageCredentials }}

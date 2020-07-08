@@ -32,17 +32,6 @@ Create chart name and version as used by the chart label.
 {{- end -}}
 
 {{/*
-Define serviceAccountName name
-*/}}
-{{- define "orchestrate-worker.serviceAccountName" -}}
-{{- if .Values.serviceAccount.name -}}
-	{{ .Values.serviceAccount.name }}
-{{- else -}}
-	{{ include "orchestrate-worker.fullname" . }}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Define imageCredentials name.
 */}}
 {{- define "orchestrate-worker.imagePullSecretName" -}}
@@ -70,4 +59,35 @@ Define imageCredentials name for test.
 
 {{- define "orchestrate-worker.imagePullSecretTest" }}
 {{- printf "{\"auths\": {\"%s\": {\"auth\": \"%s\"}}}" .Values.testImageCredentials.registry (printf "%s:%s" .Values.testImageCredentials.username .Values.testImageCredentials.password | b64enc) | b64enc }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "orchestrate-worker.labels" -}}
+helm.sh/chart: {{ include "orchestrate-worker.chart" . }}
+{{ include "orchestrate-worker.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "orchestrate-worker.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "orchestrate-worker.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Define serviceAccountName name
+*/}}
+{{- define "orchestrate-worker.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "orchestrate-worker.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
 {{- end }}

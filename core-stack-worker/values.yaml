@@ -7,8 +7,8 @@ replicaCount: 1
 product: orchestrate
 
 image:
-  repository: nginx
-  tag: stable
+  repository: consensys-docker-pegasys-orchestrate.bintray.io/orchestrate
+  tag: v2.1.1
   pullPolicy: IfNotPresent
 
 cmd:
@@ -17,9 +17,14 @@ cmd:
 imageCredentials:
   create: false
   name: existing-secret
-  registry: registry.gitlab.com
+  registry: consensys-docker-pegasys-orchestrate.bintray.io
   username: someone
   password: sillyness
+
+environment: {}
+environmentSecrets: {}
+aws: # DEPRECATED: use podAnnotations
+  enabled: false
 
 vaultAgent:
   role: "client"
@@ -28,19 +33,32 @@ vaultAgent:
     repository: vault
     tag: 1.1.1
 
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
 service:
   type: ClusterIP
   metrics:
     port: 8082
-
-environment: {}
-environmentSecrets: {}
-aws:
-  enabled: false
-
-serviceAccount:
-  create: true
-  # name: "othername"
 
 testImage:
   repository: registry.gitlab.com/consensys/client/fr/core-stack/tests/kafka-producer
@@ -55,6 +73,12 @@ testImageCredentials:
 testEnvironment: {}
 
 resources: {}
+#  limits:
+#  cpu: 300m
+#  memory: 128Mi
+# requests:
+#  cpu: 100m
+#  memory: 32Mi
 
 nodeSelector: {}
 
