@@ -68,7 +68,7 @@ spec:
     metadata:
       name: {{ template "orchestrate-api.fullname" . }}-initdb-pod
       labels:
-        {{- include "orchestrate-api.labels" . | nindent 6 }}
+        {{- include "orchestrate-api.labels" . | nindent 8 }}
     spec:
       restartPolicy: Never
       {{- if .Values.imageCredentials }}
