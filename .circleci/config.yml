@@ -13,7 +13,6 @@ workflows:
     jobs:
       - lint
 
-
 jobs:
   lint:
     executor: alpine
@@ -23,12 +22,17 @@ jobs:
           name: helm lint
           working_directory: ./helm
           command: |
-            helm lint
+            helm lint ./core-stack-worker
+            helm lint ./core-stack-api
 
 commands:
   init:
     description: "Install"
     steps:
+      - run:
+          name: Install curl
+          command: |
+            apk add --no-cache curl bash git openssl
       - helm/install-helm-client:
           version: v3.3.4
       - run:
