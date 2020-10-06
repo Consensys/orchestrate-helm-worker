@@ -9,9 +9,17 @@ executors:
       - image: alpine
 
 workflows:
-  master:
+  default:
     jobs:
       - lint
+      - push:
+          requires:
+            - lint
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
 
 jobs:
   lint:
@@ -24,6 +32,22 @@ jobs:
           command: |
             helm lint ./core-stack-worker
             helm lint ./core-stack-api
+  push:
+    executor: alpine
+    steps:
+      - init
+      - run:
+          name: Install helm plugins
+          command: |
+            helm plugin install https://github.com/belitre/helm-push-artifactory-plugin --version v1.0.2
+      - run:
+          name: helm push
+          working_directory: ./helm
+          command: |
+            helm repo add --username ${HELM_REPO_USERNAME} --password ${HELM_REPO_PASSWORD} helm-orchestrate ${HELM_REPO_URL}
+            helm push-artifactory core-stack-worker helm-orchestrate
+            helm push-artifactory core-stack-api helm-orchestrate
+
 
 commands:
   init:
@@ -35,9 +59,5 @@ commands:
             apk add --no-cache curl bash git openssl
       - helm/install-helm-client:
           version: v3.3.4
-      - run:
-          name: Install helm plugins
-          command: |
-            helm plugin install https://github.com/belitre/helm-push-artifactory-plugin --version v1.0.2
       - checkout:
           path: ./helm

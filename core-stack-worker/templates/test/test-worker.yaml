@@ -16,7 +16,7 @@ spec:
     command: ["/bin/sh","-c"]
     args: 
       - touch /report/output/report.json;
-        chmod 777 /report/output/report.json;
+        chmod 766 /report/output/report.json;
     volumeMounts:
       - mountPath: /report/output
         name: output
