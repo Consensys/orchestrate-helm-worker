@@ -5,7 +5,7 @@
 
 # Helm Charts
 
-This GitHub project is the source for Orchestrate Helm chart repositories.
+This GitHub project is the source code of the Orchestrate Worker Helm chart.
 
 For more information about installing and using Helm, see the Helm Docs. For a quick introduction to Charts, see the Chart Guide.
 

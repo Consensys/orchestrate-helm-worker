@@ -6,18 +6,24 @@ version: 2.1
 executors:
   alpine:
     docker:
-      - image: alpine
+      - image: circleci/python:3.9
 
 workflows:
+  version: 2
   default:
     jobs:
-      - lint
+      - lint:
+          filters:
+            tags:
+              only: /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
+            branches:
+              only: /.*/
       - push:
           requires:
             - lint
           filters:
             tags:
-              only: /^v.*/
+              only: /^([0-9]+)\.([0-9]+)\.([0-9]+)$/
             branches:
               ignore: /.*/
 
@@ -28,36 +34,31 @@ jobs:
       - init
       - run:
           name: helm lint
-          working_directory: ./helm
-          command: |
-            helm lint ./core-stack-worker
-            helm lint ./core-stack-api
+          command: helm lint
   push:
     executor: alpine
     steps:
       - init
       - run:
-          name: Install helm plugins
+          name: Helm package
           command: |
-            helm plugin install https://github.com/belitre/helm-push-artifactory-plugin --version v1.0.2
+            helm package .
       - run:
-          name: helm push
-          working_directory: ./helm
+          name: Install cloudsmith CLI
           command: |
-            helm repo add --username ${HELM_REPO_USERNAME} --password ${HELM_REPO_PASSWORD} helm-orchestrate ${HELM_REPO_URL}
-            helm push-artifactory core-stack-worker helm-orchestrate
-            helm push-artifactory core-stack-api helm-orchestrate
-
+            pip install cloudsmith-cli
+      - run:
+          name: Push
+          command: |
+            cloudsmith push helm consensys/helm ./core-stack-worker-${CIRCLE_TAG}.tgz
 
 commands:
   init:
     description: "Install"
     steps:
-      - run:
-          name: Install curl
-          command: |
-            apk add --no-cache curl bash git openssl
       - helm/install-helm-client:
           version: v3.3.4
-      - checkout:
-          path: ./helm
+      - run:
+          name: Cleanup
+          command: rm ./*
+      - checkout
