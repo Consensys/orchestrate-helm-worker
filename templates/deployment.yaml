@@ -73,9 +73,6 @@ spec:
                 name: {{ include "orchestrate-worker.fullname" . }}-secretmap
                 optional: true
           ports:
-            - name: http
-              containerPort: 8080
-              protocol: TCP
             - name: http-metrics
               containerPort: 8082
               protocol: TCP

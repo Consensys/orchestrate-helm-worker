@@ -10,6 +10,16 @@ spec:
   imagePullSecrets:
     - name: {{ template "orchestrate-worker.imagePullSecretNameTest" . }}
   {{ end }}
+  initContainers:
+  - name: init
+    image: alpine:3.12
+    command: ["/bin/sh","-c"]
+    args: 
+      - touch /report/output/report.json;
+        chmod 766 /report/output/report.json;
+    volumeMounts:
+      - mountPath: /report/output
+        name: output
   containers:
   - name: "{{ template "orchestrate-worker.fullname" . }}-test"
     image: "{{ .Values.testImage.repository }}:{{ .Values.testImage.tag }}"
@@ -27,4 +37,11 @@ spec:
       - name: {{ $key }}
         value:  {{ $value | quote }}
       {{- end }}
+    volumeMounts:
+      - name: output
+        mountPath: /report/output
   restartPolicy: Never
+  volumes:
+    - name: output
+      persistentVolumeClaim:
+        claimName: {{ template "orchestrate-worker.fullname" . }}-output-pvc
