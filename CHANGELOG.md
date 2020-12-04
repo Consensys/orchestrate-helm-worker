@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## v0.6.0 (2020-10-06)
+## v0.6.0 (2020-12-04)
 ### 🛠 Features
 * Add variable to enable test ressources `test.enabled`
 * Remove vault agent in workers
