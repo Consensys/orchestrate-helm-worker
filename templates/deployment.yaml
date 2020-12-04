@@ -4,7 +4,9 @@ kind: Deployment
 metadata:
   name: {{ include "orchestrate-worker.fullname" . }}
   labels:
+    {{- if .Values.test.enabled }}
     testImage: {{ default "null" .Values.testImage.cmd }}
+    {{- end }}
     {{- include "orchestrate-worker.labels" . | nindent 4 }}
     app.metrics: {{ .Values.product }}
 spec:
@@ -21,7 +23,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secrets: {{ include (print $.Template.BasePath "/secret-env.yaml") . | sha256sum }}
+        {{- if .Values.test.enabled }}
         checksum/testworker: {{ include (print $.Template.BasePath "/test/test-worker.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.aws.enabled }}
           iam.amazonaws.com/role: "{{ .Values.aws.IamRoleArn }}"
         {{- end }}
@@ -36,25 +40,6 @@ spec:
       serviceAccountName: {{ include "orchestrate-worker.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.vaultAgent.enabled }}
-      initContainers:
-        - name: vault-token
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.vaultAgent.image.repository }}:{{ .Values.vaultAgent.image.tag }}"
-          args:
-            - "agent"
-            - "-config"
-            - "/vault/config/agent-config.hcl"
-          envFrom:
-            - configMapRef:
-                name: {{ include "orchestrate-worker.fullname" . }}-envmap
-          volumeMounts:
-            - name: vault-token
-              mountPath: /vault/token
-            - name: vault-config
-              mountPath: /vault/config
-      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -90,21 +75,6 @@ spec:
             periodSeconds: 3
           resources:
           {{ toYaml .Values.resources | nindent 12 }}
-      {{- if .Values.vaultAgent.enabled }}
-          volumeMounts:
-            - name: vault-token
-              mountPath: /vault/token
-      {{- end }}            
-      {{- if .Values.vaultAgent.enabled }}
-      volumes:
-        - name: vault-token
-          emptyDir:
-            medium: Memory
-            sizeLimit: 1M
-        - name: vault-config
-          configMap:
-            name: {{ include "orchestrate-worker.fullname" . }}-vault-agent
-      {{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{ toYaml . | nindent 8 }}
