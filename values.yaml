@@ -26,13 +26,6 @@ environmentSecrets: {}
 aws: # DEPRECATED: use podAnnotations
   enabled: false
 
-vaultAgent:
-  role: "client"
-  enabled: false
-  image:
-    repository: vault
-    tag: 1.1.1
-
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -60,6 +53,8 @@ service:
   metrics:
     port: 8082
 
+test:
+  enabled: false
 testImage:
   repository: docker.cloudsmith.io/consensys/docker-private/orchestrate-e2e
   tag: v2.4.0-rc2
