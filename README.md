@@ -5,7 +5,11 @@
 
 # Helm Charts
 
-This GitHub project is the source code of the Orchestrate Worker Helm chart.
+> **This Helm chart is deprecated**.
+> All future changes to the Orchestrate Helm chart should be made in the
+> [official repository](https://github.com/ConsenSys/orchestrate-helm).
+
+This GitHub project is the source code of the Orchestrate Worker (v2.5.X) Helm chart.
 
 For more information about installing and using Helm, see the Helm Docs. For a quick introduction to Charts, see the Chart Guide.
 
@@ -17,4 +21,4 @@ The available Charts are listed below:
 * core-stack-worker
 * core-stack-api
 
-For an example on how to use these charts, please see the [orchestrate-kubernetes](https://github.com/PegaSysEng/orchestrate-kubernetes) project.
+For an example on how to use these charts, please see the [orchestrate-kubernetes](https://github.com/ConsenSys/orchestrate-kubernetes) project.
