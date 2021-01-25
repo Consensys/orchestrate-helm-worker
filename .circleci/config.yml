@@ -1,5 +1,5 @@
 orbs:
-  helm: circleci/helm@1.0.0
+  helm: circleci/helm@1.2.0
 
 version: 2.1
 

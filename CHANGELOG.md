@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.6.1 (2021-01-25)
+* Deprecate Chart
+
 ## v0.6.0 (2020-12-04)
 ### 🛠 Features
 * Add variable to enable test ressources `test.enabled`

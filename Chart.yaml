@@ -2,7 +2,7 @@
 apiVersion: v1
 description: A Helm chart for Orchestrate workers
 name: core-stack-worker
-version: 0.6.0
+version: 0.6.1
 home: https://pegasys.tech/orchestrate/
 icon: https://docs.orchestrate.pegasys.tech/en/stable/logo.svg
 maintainers:
@@ -10,3 +10,7 @@ maintainers:
   - name: arnaud.gouriou
   - name: julien.marchand
   - name: christian.tran
+# This version of the Helm chart is deprecated.
+# All future updates should be instead made to the official Orchestrate
+# repository, found at https://github.com/ConsenSys/orchestrate-helm
+deprecated: true
