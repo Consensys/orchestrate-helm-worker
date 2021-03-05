@@ -1,3 +1,4 @@
+{{- if .Values.test.enabled }}
 ---
 apiVersion: v1
 kind: Pod
@@ -45,3 +46,4 @@ spec:
     - name: output
       persistentVolumeClaim:
         claimName: {{ template "orchestrate-worker.fullname" . }}-output-pvc
+{{- end }}

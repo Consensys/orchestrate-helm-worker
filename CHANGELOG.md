@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.5.5 (2021-03-05)
+### 🛠 Bug fixes
+* Add variable to enable test ressources `test.enabled`
+
 ## v0.5.4 (2020-10-06)
 ### 🛠 Bug fixes
 * Add persistent volume for helm test report file

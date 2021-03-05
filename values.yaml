@@ -60,6 +60,8 @@ service:
   metrics:
     port: 8082
 
+test:
+  enabled: false
 testImage:
   repository: docker.cloudsmith.io/consensys/docker-private/orchestrate-e2e
   tag: v2.4.0-rc2
